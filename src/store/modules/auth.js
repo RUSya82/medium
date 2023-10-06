@@ -1,36 +1,49 @@
-import authApi from '@/api/auth'
+import authApi from '@/api/auth';
+import {setItem} from '@/helpers/persistanceStorage';
 
+export const  mutationTypes = {
+    registerStart: '[auth] registerStart',
+    registerSuccess: '[auth] registerSuccess',
+    registerFailed: '[auth] registerFailed',
+}
+export const actionTypes = {
+    register: '[auth] register'
+}
 const auth = {
     state: {
         isSubmitting: false,
+        currentUser: null,
+        validationErrors: null,
+        isLoggedIn: null
     },
     mutations: {
-        registerStart(state) {
+        [mutationTypes.registerStart](state) {
             state.isSubmitting = true;
+            state.validationErrors = null;
         },
-        registerSuccess(state) {
+        [mutationTypes.registerSuccess](state, payload) {
             state.isSubmitting = false;
+            state.currentUser = payload;
+            state.isLoggedIn = true;
         },
-        registerFailed(state) {
+        [mutationTypes.registerFailed](state, payload) {
             state.isSubmitting = false;
+            state.validationErrors = payload;
         },
     },
     actions: {
-        registerStart({commit}, credentials){
-            // setTimeout(() => {
-            //     commit('registerStart')
-            // }, 1000)
-
+        [actionTypes.register]({commit}, credentials){
             console.log(credentials);
             return new Promise(resolve => {
-                commit('registerStart');
+                commit(mutationTypes.registerStart);
                 authApi.register(credentials)
                     .then(response => {
-                        commit('registerSuccess', response.data.user)
+                        commit(mutationTypes.registerSuccess, response.data.user);
+                        setItem('accessToken', response.data.user.token);
                         resolve(response.data.user);
                     })
                     .catch(error => {
-                        commit('registerFailed', error.response.data.errors)
+                        commit(mutationTypes.registerFailed, error.response.data.errors)
                         console.log(error);
                     })
             })
