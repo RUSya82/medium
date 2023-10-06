@@ -3,22 +3,14 @@
         <div class='container page'>
             <div class='row'>
                 <div class='col-md-6 offset-md-3 col-xs-12'>
-                    <h1 class='text-xs-center'>Sign up</h1>
+                    <h1 class='text-xs-center'>Sign in</h1>
                     <p class='text-xs-center'>
-                        <router-link :to="{name: 'login'}">
-                            Have an account?
+                        <router-link :to="{name: 'register'}">
+                            Need an account?
                         </router-link>
                     </p>
                     <ValidationErrorsComponent v-if='validationErrors' :validation-errors='validationErrors'/>
                     <form @submit.prevent='onSubmit'>
-                        <fieldset class='form-group'>
-                            <input
-                                class='form-control form-control-lg'
-                                type='text'
-                                placeholder='Username'
-                                v-model='username'
-                            />
-                        </fieldset>
                         <fieldset class='form-group'>
                             <input
                                 class='form-control form-control-lg'
@@ -54,7 +46,7 @@ import { mapState } from 'vuex'
 
 export default {
 
-    name: 'RegisterView',
+    name: 'LoginView',
     components: {
         ValidationErrorsComponent
     },
@@ -62,7 +54,6 @@ export default {
         return {
             email: '',
             password: '',
-            username: ''
         }
     },
     computed: {
@@ -79,9 +70,8 @@ export default {
     },
     methods: {
         onSubmit() {
-            this.$store.dispatch(actionTypes.register, {
+            this.$store.dispatch(actionTypes.login, {
                 email: this.email,
-                username: this.username,
                 password: this.password
             }).then(user => {
                 console.log(user);
@@ -93,6 +83,3 @@ export default {
 };
 </script>
 
-<style scoped>
-
-</style>

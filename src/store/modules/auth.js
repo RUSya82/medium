@@ -5,9 +5,13 @@ export const  mutationTypes = {
     registerStart: '[auth] registerStart',
     registerSuccess: '[auth] registerSuccess',
     registerFailed: '[auth] registerFailed',
+    loginStart: '[auth] loginStart',
+    loginSuccess: '[auth] loginSuccess',
+    loginFailed: '[auth] loginFailed'
 }
 export const actionTypes = {
-    register: '[auth] register'
+    register: '[auth] register',
+    login: '[auth] login'
 }
 const auth = {
     state: {
@@ -30,6 +34,19 @@ const auth = {
             state.isSubmitting = false;
             state.validationErrors = payload;
         },
+        [mutationTypes.loginStart](state) {
+            state.isSubmitting = true;
+            state.validationErrors = null;
+        },
+        [mutationTypes.loginSuccess](state, payload) {
+            state.isSubmitting = false;
+            state.currentUser = payload;
+            state.isLoggedIn = true;
+        },
+        [mutationTypes.loginFailed](state, payload) {
+            state.isSubmitting = false;
+            state.validationErrors = payload;
+        },
     },
     actions: {
         [actionTypes.register]({commit}, credentials){
@@ -44,6 +61,22 @@ const auth = {
                     })
                     .catch(error => {
                         commit(mutationTypes.registerFailed, error.response.data.errors)
+                        console.log(error);
+                    })
+            })
+        },
+        [actionTypes.login]({commit}, credentials){
+            console.log(credentials);
+            return new Promise(resolve => {
+                commit(mutationTypes.loginStart);
+                authApi.login(credentials)
+                    .then(response => {
+                        commit(mutationTypes.loginSuccess, response.data.user);
+                        setItem('accessToken', response.data.user.token);
+                        resolve(response.data.user);
+                    })
+                    .catch(error => {
+                        commit(mutationTypes.loginFailed, error.response.data.errors)
                         console.log(error);
                     })
             })
